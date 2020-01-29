@@ -1,0 +1,44 @@
+@app.route('/artists/<int:artist_id>')
+def show_artist(artist_id):
+  # shows the artists page with the given artist_id
+  # TODO: replace with real artists data from the artists table, using artist_id
+  error = False
+  try:
+    now = datetime.now()
+    artist = Artist.query.filter_by(id=artist_id).all()
+    shows = Show.query.filter_by(artist_id=artist_id).all()
+    db.session.commit()
+    upcomingShows = []
+    pastShows = []
+    for show in shows: 
+      if show >= now:
+        upcomingShows.append(show)
+      elif show < now:
+        pastShows.append(show)
+    data={
+      "id": artist.id,
+      "name": artist.name,
+      "genres": artist.genres,
+      "city": artist.city,
+      "state": artist.state,
+      "phone": artist.phone,
+      "website": artist.website,
+      "facebook_link": artist.facebook_link,
+      "seeking_venue": artist.seeking_venue,
+      "image_link": artist.image_link,
+      "past_shows": [{
+        "venue_id": 1,
+        "venue_name": "The Musical Hop",
+        "venue_image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+        "start_time": "2019-05-21T21:30:00.000Z"
+        }],
+      "upcoming_shows": [],
+      "past_shows_count": 1,
+      "upcoming_shows_count": 0
+    }
+  except:
+    error = True
+    flash('Could not retrieve artists data')
+  finally:
+    db.session.close()
+    return render_template('pages/show_artist.html', artist=data)
